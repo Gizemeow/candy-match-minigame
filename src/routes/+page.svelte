@@ -1,7 +1,10 @@
 <script>
     // @ts-nocheck 
-    import { onDestroy } from 'svelte'; // Bellek sızıntısını önlemek için import
 
+    import Draggable from '$lib/Draggable.svelte';
+
+    import { onDestroy } from 'svelte'; // Bellek sızıntısını önlemek için import
+    
     let emojis = ['🍨', '🍫', '🍪', '🍰', '🍭', '🍬'];
     
     let cards = $state(
@@ -19,7 +22,7 @@
     let score = $state(0);     
 
     // Svelte 5 uyumlu reaktif süre ve zamanlayıcı değişkenleri
-    let timeLeft = $state(10); // Süre 10 saniye olarak başlatılır
+    let timeLeft = $state(15); // Süre 15 saniye olarak başlatılır
 
     let timerId = null;        // Arka plandaki setInterval ID'si
 
@@ -52,7 +55,7 @@
     function gameOver() {
         clearInterval(timerId);
         timerId = "ENDED"; // Zamanlayıcının bittiğini işaretleyen özel bir flag
-        alert("Süre bitti! Oyun bitti. :O");
+        alert("Süre bitti! Oyun bitti! :3");
     }
 
     function handleFlip(card) {
@@ -111,13 +114,27 @@
     onDestroy(() => {
         if (timerId && timerId !== "ENDED") clearInterval(timerId);
     });
+   
+    let x = $state(300); // Ekranın ortasına yakın bir yer
+    let y = $state(300);
+    let isDragging = false;
+
+    function startDrag() { isDragging = true; }
+    function stopDrag() { isDragging = false; }
+    
+    function onMouseMove(event) {
+        if (isDragging) {
+            x += event.movementX;
+            y += event.movementY;
+        }
+    }
 
 </script>
 
-<main translate="no" class="notranslate min-h-screen bg-gradient-to-br from-rose-200 via-rose-100 to-orange-100 text-stone-800 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
+<main translate="no" class="notranslate min-h-screen bg-linear-to-br from-rose-200 via-rose-100 to-orange-100 text-stone-800 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
     
     <div class="mb-8 text-center flex flex-col items-center gap-3">
-        <h1 class="text-4xl font-black text-rose-400 uppercase tracking-tighter mb-2">Tatlı Eşleme</h1>
+        <h1 class="text-4xl font-black text-rose-400 uppercase tracking-tighter mb-2">Sweet Match</h1>
         
         <div class="flex flex-wrap justify-center gap-4">
             <div class="bg-rose-200/90 px-6 py-2 rounded-full border border-rose-300 inline-block shadow-md">
@@ -165,7 +182,7 @@
     {#if score === 60 || timeLeft === 0}
         <div class="mt-10 text-center animate-pulse">
             {#if score === 60}
-                <p class="text-emerald-600 font-bold mb-4 text-xl">Tebrikler! Hepsini Buldun!:DD</p>
+                <p class="text-emerald-600 font-bold mb-4 text-xl">Tebrikler! Hepsini Buldun! :DD</p>
             {:else}
                 <p class="text-rose-500 font-bold mb-4 text-xl">Süre Bitti! Bir Dahaki Sefere... :&lt;</p>
             {/if}
@@ -178,9 +195,21 @@
         </div>
     {/if}
     <div class="absolute bottom-4 right-4 text-xs font-medium text-stone-800/40 tracking-wider">
-    Developed by Kübra Gizem Eryılmaz
-</div>
+        Developed by Kübra Gizem Eryılmaz
+    </div>
+
+ <img 
+    src="/cutemarchmellows.png" 
+    alt="Marshmallow" 
+    class="fixed" 
+    style="left: 755px; top: 10px; width: 230px; z-index: 5; pointer-events: none;" 
+/>
+
+
+
 </main>
+
+
 
 <style>
     :global(.rotate-y-180) {
@@ -195,3 +224,110 @@
         animation: bounce-short 0.5s ease-in-out;
     }
 </style>
+
+
+//KEDİLER
+
+<Draggable 
+    src="/kedipro.gif" 
+    alt="Yürüyen Kedi" 
+    initialX={400} 
+    initialY={500} 
+    size={600} 
+/>
+<Draggable 
+    src="/kediziplama.gif" 
+    alt="Zıplayan Kedi" 
+    initialX={520} 
+    initialY={120} 
+    size={200} 
+/>
+<Draggable 
+    src="/kediziplamaprorreversed.gif" 
+    alt="Zıplayan Kedi ters" 
+    initialX={1235} 
+    initialY={120} 
+    size={200} 
+/>
+
+
+
+//TATLILAR
+
+<Draggable 
+    src="/cake.png" 
+    alt="kek" 
+    initialX={200} 
+    initialY={120} 
+    size={150} 
+/>
+<Draggable 
+    src="/pinkdonut.png" 
+    alt="Pink Donat" 
+    initialX={1500} 
+    initialY={160} 
+    size={120} 
+/>
+<Draggable 
+    src="/vanillaicecream.png" 
+    alt="Vanilla İce Cream" 
+    initialX={180} 
+    initialY={750} 
+    size={100} 
+/>
+<Draggable 
+    src="/chocodonut.png" 
+    alt="Choco Donat" 
+    initialX={170} 
+    initialY={350} 
+    size={120} 
+/>
+<Draggable 
+    src="/pinkicecream.png" 
+    alt="Pink İce Cream" 
+    initialX={400} 
+    initialY={260} 
+    size={100} 
+/>
+<Draggable 
+    src="/chococake.png" 
+    alt="Choco Cake" 
+    initialX={1600} 
+    initialY={300} 
+    size={100} 
+/>
+<Draggable 
+    src="/strawberry.png" 
+    alt="Strawberry" 
+    initialX={1280} 
+    initialY={650} 
+    size={100} 
+/>
+<Draggable 
+    src="/weirdcake.png" 
+    alt="weird cake" 
+    initialX={1580} 
+    initialY={700} 
+    size={100} 
+/>
+<Draggable 
+    src="/vanillacake.png" 
+    alt="Vanilla Cake" 
+    initialX={1300} 
+    initialY={380} 
+    size={100} 
+/>
+<Draggable 
+    src="/vanillastrawberrycake.png" 
+    alt="Vanilla Strawberry Cake" 
+    initialX={1500} 
+    initialY={500} 
+    size={100} 
+/>
+<Draggable 
+    src="/pinkmacarone.png" 
+    alt="pink macarone" 
+    initialX={450} 
+    initialY={680} 
+    size={100} 
+/>
