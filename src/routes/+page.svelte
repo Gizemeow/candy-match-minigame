@@ -231,9 +231,9 @@
 <Draggable 
     src="/kedipro.gif" 
     alt="Yürüyen Kedi" 
-    initialX={400} 
+    initialX={300} 
     initialY={500} 
-    size={600} 
+    size={500} 
 />
 <Draggable 
     src="/kediziplama.gif" 
