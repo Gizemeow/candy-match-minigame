@@ -201,7 +201,7 @@
  <img 
     src="/cutemarchmellows.png" 
     alt="Marshmallow" 
-    class="fixed" 
+    class="absolute" 
     style="left: 755px; top: 10px; width: 230px; z-index: 5; pointer-events: none;" 
 />
 
@@ -225,8 +225,6 @@
     }
 </style>
 
-
-//KEDİLER
 
 <Draggable 
     src="/kedipro.gif" 
@@ -252,7 +250,7 @@
 
 
 
-//TATLILAR
+
 
 <Draggable 
     src="/cake.png" 
