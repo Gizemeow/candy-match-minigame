@@ -1,9 +1,20 @@
 <script>
     // @ts-nocheck 
 
-    import Draggable from '$lib/Draggable.svelte';
 
-    import { onDestroy } from 'svelte'; // Bellek sızıntısını önlemek için import
+   //import=Draggable from '$lib/Draggable.svelte'; (if you want to use the Draggable component, uncomment this line and ensure the path is correct)
+
+   /* Draggable component usage (Decouple the Draggable script from the main script block; it should be handled as a standalone entity.)
+    <Draggable 
+    src="/your-image.png/.gif" //must be in your static folder
+    alt="Draggable_Image_Name" 
+    initialX={0} 
+    initialY={0} 
+    size={200} //as you prefer 
+    />
+    */ 
+
+    import { onDestroy } from 'svelte'; // Prevent memory leaks by using dynamic imports
     
     let emojis = ['🍨', '🍫', '🍪', '🍰', '🍭', '🍬'];
     
@@ -21,48 +32,46 @@
     let selected = $state([]); 
     let score = $state(0);     
 
-    // Svelte 5 uyumlu reaktif süre ve zamanlayıcı değişkenleri
-    let timeLeft = $state(15); // Süre 15 saniye olarak başlatılır
+    let timeLeft = $state(15); // Start the countdown timer with a 15-second duration
+    let timerId = null;        //setInterval ID
 
-    let timerId = null;        // Arka plandaki setInterval ID'si
-
-    // Tarayıcı hafızasından (SSD/HDD) eski rekoru oku, eğer veri tabanında rekor yoksa 0 olarak başlat
+    // Fetch the high score from browser local storage; default to 0 if not found
     let highScore = $state(
         typeof window !== 'undefined' ? Number(localStorage.getItem('candy_highscore') || 0) : 0
     );
     
     function clearRecord() {
         if (typeof window !== 'undefined') {
-            localStorage.removeItem('candy_highscore'); // Diskteki veriyi siler
-            highScore = 0; // Ekrandaki rekor göstergesini anlık olarak sıfırlar
+            localStorage.removeItem('candy_highscore'); // Clear data from Local Storage
+            highScore = 0; // Reset the high score display on the UI immediately
         }
     }
     
-    // Zamanlayıcıyı başlatan fonksiyon
+  // Function to initiate the timer
     function startTimer() {
         if (timerId) clearInterval(timerId);
 
         timerId = setInterval(() => {
             if (timeLeft > 0) {
-                timeLeft -= 1; // İşlemci her saniye bu değeri 1 azaltır
+                timeLeft -= 1; // Process each second by reducing this value by 1
             } else {
-                gameOver(); // Süre 0 olduğunda oyunu bitirir
+                gameOver(); // When time runs out, end the game
             }
         }, 1000);
     }
 
-    // Zamanlayıcıyı durduran ve oyunu bitiren fonksiyon
+    // Function to stop the timer and end the game
     function gameOver() {
         clearInterval(timerId);
-        timerId = "ENDED"; // Zamanlayıcının bittiğini işaretleyen özel bir flag
-        alert("Süre bitti! Oyun bitti! :3");
+        timerId = "ENDED"; // Flag to indicate the timer has ended
+        alert("Time's up! Game over! :3");
     }
 
     function handleFlip(card) {
-        // EĞER SÜRE BİTTİYSE: Kartların tıklanmasını engelle
+        // IF TIME IS UP: Prevent further card interactions
         if (timerId === "ENDED") return;
 
-        // İLK KART TIKLAMASI: Eğer zamanlayıcı henüz başlamadıysa (null ise) başlat
+        // FIRST CARD CLICK: If the timer hasn't started yet (null), start it
         if (timerId === null) {
             startTimer();
         }
@@ -85,8 +94,8 @@
             score += 10;
             selected = []; 
             
-            // REKOR KONTROLÜ: Mevcut skor rekoru geçtiği an hem bellekteki rekoru anlık günceller
-            // hem de bunu kalıcı olarak tarayıcının sabit diskine kaydeder.
+        // HIGH SCORE CHECK: If current score exceeds high score, update it in memory
+        // and persist the new record to the browser's disk storage.
             if (score > highScore) {
                 highScore = score;
                 if (typeof window !== 'undefined') {
@@ -94,7 +103,7 @@
                 }
             }
             
-            // OYUNUN KAZANILMA KONTROLÜ: Eğer maksimum skora ulaşıldıysa sayacı durdur
+           // GAME WIN CONDITION: Stop the timer if the maximum score is reached
             if (score === 60) {
                 clearInterval(timerId);
             }
@@ -110,12 +119,12 @@
         location.reload(); 
     }
 
-    // Kullanıcı sekmeyi kapatırsa veya başka sayfaya geçerse RAM'deki sayacı temizle
+   // Clear the interval from RAM when the user leaves the tab or page
     onDestroy(() => {
         if (timerId && timerId !== "ENDED") clearInterval(timerId);
     });
    
-    let x = $state(300); // Ekranın ortasına yakın bir yer
+    let x = $state(300);
     let y = $state(300);
     let isDragging = false;
 
@@ -138,17 +147,17 @@
         
         <div class="flex flex-wrap justify-center gap-4">
             <div class="bg-rose-200/90 px-6 py-2 rounded-full border border-rose-300 inline-block shadow-md">
-                <span class="text-rose-700 uppercase text-xs font-black tracking-widest">Skor:</span>
+                <span class="text-rose-700 uppercase text-xs font-black tracking-widest">Score:</span>
                 <span class="text-xl font-mono font-bold text-stone-800 ml-2">{score}</span>
             </div>
 
             <div class="bg-rose-200/90 px-6 py-2 rounded-full border border-rose-300 inline-block shadow-md">
-                <span class="text-rose-700 uppercase text-xs font-black tracking-widest">Süre:</span>
+                <span class="text-rose-700 uppercase text-xs font-black tracking-widest">Time:</span>
                 <span class="text-xl font-mono font-bold text-stone-800 ml-2">{timeLeft}s</span>
             </div>
 
             <div class="bg-orange-200/90 px-6 py-2 rounded-full border border-orange-300 inline-block shadow-md">
-                <span class="text-orange-700 uppercase text-xs font-black tracking-widest">Rekor:</span>
+                <span class="text-orange-700 uppercase text-xs font-black tracking-widest">Record:</span>
                 <span class="text-xl font-mono font-bold text-stone-800 ml-2">{highScore}</span>
             </div>
         </div>
@@ -157,7 +166,7 @@
             onclick={clearRecord}
             class="text-xs text-stone-500 underline mt-4 hover:text-rose-400 transition-colors"
         >
-            Rekoru Sıfırla
+           Reset Record
         </button>
     </div>
 
@@ -182,15 +191,15 @@
     {#if score === 60 || timeLeft === 0}
         <div class="mt-10 text-center animate-pulse">
             {#if score === 60}
-                <p class="text-emerald-600 font-bold mb-4 text-xl">Tebrikler! Hepsini Buldun! :DD</p>
+                <p class="text-emerald-600 font-bold mb-4 text-xl">Congratulations! You found them all! :DD</p>
             {:else}
-                <p class="text-rose-500 font-bold mb-4 text-xl">Süre Bitti! Bir Dahaki Sefere... :&lt;</p>
+                <p class="text-rose-500 font-bold mb-4 text-xl">Time's up! Better luck next time... :&lt;</p>
             {/if}
             <button 
                 onclick={resetGame}
                 class="bg-rose-400 hover:bg-rose-500 text-white font-black px-8 py-3 rounded-full shadow-md transition-transform hover:scale-105"
             >
-                TEKRAR OYNA
+                PLAY AGAIN
             </button>
         </div>
     {/if}
@@ -198,12 +207,6 @@
         Developed by Kübra Gizem Eryılmaz
     </div>
 
- <img 
-    src="/cutemarchmellows.png" 
-    alt="Marshmallow" 
-    class="absolute" 
-    style="left: 755px; top: 10px; width: 230px; z-index: 5; pointer-events: none;" 
-/>
 
 
 
@@ -225,107 +228,3 @@
     }
 </style>
 
-
-<Draggable 
-    src="/kedipro.gif" 
-    alt="Yürüyen Kedi" 
-    initialX={300} 
-    initialY={500} 
-    size={500} 
-/>
-<Draggable 
-    src="/kediziplama.gif" 
-    alt="Zıplayan Kedi" 
-    initialX={520} 
-    initialY={120} 
-    size={200} 
-/>
-<Draggable 
-    src="/kediziplamaprorreversed.gif" 
-    alt="Zıplayan Kedi ters" 
-    initialX={1235} 
-    initialY={120} 
-    size={200} 
-/>
-
-
-
-
-
-<Draggable 
-    src="/cake.png" 
-    alt="kek" 
-    initialX={200} 
-    initialY={120} 
-    size={150} 
-/>
-<Draggable 
-    src="/pinkdonut.png" 
-    alt="Pink Donat" 
-    initialX={1500} 
-    initialY={160} 
-    size={120} 
-/>
-<Draggable 
-    src="/vanillaicecream.png" 
-    alt="Vanilla İce Cream" 
-    initialX={180} 
-    initialY={750} 
-    size={100} 
-/>
-<Draggable 
-    src="/chocodonut.png" 
-    alt="Choco Donat" 
-    initialX={170} 
-    initialY={350} 
-    size={120} 
-/>
-<Draggable 
-    src="/pinkicecream.png" 
-    alt="Pink İce Cream" 
-    initialX={400} 
-    initialY={260} 
-    size={100} 
-/>
-<Draggable 
-    src="/chococake.png" 
-    alt="Choco Cake" 
-    initialX={1600} 
-    initialY={300} 
-    size={100} 
-/>
-<Draggable 
-    src="/strawberry.png" 
-    alt="Strawberry" 
-    initialX={1280} 
-    initialY={650} 
-    size={100} 
-/>
-<Draggable 
-    src="/weirdcake.png" 
-    alt="weird cake" 
-    initialX={1580} 
-    initialY={700} 
-    size={100} 
-/>
-<Draggable 
-    src="/vanillacake.png" 
-    alt="Vanilla Cake" 
-    initialX={1300} 
-    initialY={380} 
-    size={100} 
-/>
-<Draggable 
-    src="/vanillastrawberrycake.png" 
-    alt="Vanilla Strawberry Cake" 
-    initialX={1500} 
-    initialY={500} 
-    size={100} 
-/>
-<Draggable 
-    src="/pinkmacarone.png" 
-    alt="pink macarone" 
-    initialX={450} 
-    initialY={680} 
-    size={100} 
-/>
